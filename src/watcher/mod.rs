@@ -33,11 +33,16 @@ impl Watcher {
                 if current_last_mod.ne(&last_mod) {
                     println!("File has changed!");
                     last_mod = current_last_mod;
-                    thread_changes.send(WatcherMessage::HasChanged);
+                    thread_changes.send(WatcherMessage::HasChanged).unwrap();
                 }
             }
 
         });
-        handler_changes.join();
+        loop {
+            let message = rx.recv().unwrap();
+            println!("File changed, proceeding to compilation");
+            let compilation_result = exercise_arc_mtx.lock().unwrap().compile();
+            println!("{:#?} ", compilation_result.unwrap())
+        }
     }
 }

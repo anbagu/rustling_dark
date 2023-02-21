@@ -1,11 +1,11 @@
-use std::cell::RefCell;
 use std::fmt::Display;
 use std::fs;
 use std::fs::metadata;
 use std::io::{prelude::*};
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::process::{Command, Output};
+use std::time::UNIX_EPOCH;
 
 use serde::Deserialize;
 
@@ -23,6 +23,11 @@ pub struct Exercise {
     hint: String,
 }
 
+impl Exercise {
+    pub(crate) fn compile(&self) -> std::io::Result<Output> {
+        Command::new("rustc").args([&self.path]).output()
+    }
+}
 
 
 #[derive(Deserialize)]
@@ -97,7 +102,7 @@ impl Exercise {
     // }
     pub fn get_last_mod(&self) -> u64 {
         let metadata = metadata::<&PathBuf>(&self.path);
-        let last_mod_st =  metadata.unwrap().modified().unwrap();
+        let last_mod_st = metadata.unwrap().modified().unwrap();
         last_mod_st.duration_since(UNIX_EPOCH).unwrap().as_secs()
     }
 }

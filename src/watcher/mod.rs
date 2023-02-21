@@ -1,11 +1,16 @@
+use std::sync::{Arc, Mutex};
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 use std::sync::mpsc::{Sender, Receiver};
 
 use crate::exercise::Exercise;
 
-struct Watcher {
+pub struct Watcher {
     exercise: Exercise,
+}
+
+enum WatcherMessage {
+    HasChanged
 }
 
 impl Watcher {
@@ -14,12 +19,25 @@ impl Watcher {
             exercise: exercise,
         }
     }
-    pub fn watch(&mut self) -> () {
-        let (tx, rx): (Sender<Exercise>, Receiver<Exercise>) = channel();
-        self.exercise.has_changed();
-        let thread_changes:Sender<Exercise> = tx.clone();
+    pub fn watch(self) -> () {
+        let exercise_arc_mtx = Arc::new(Mutex::from(self.exercise));
+        let exercise_arc_clone = Arc::clone(&exercise_arc_mtx);
+        let (tx, rx): (Sender<WatcherMessage>, Receiver<WatcherMessage>) = channel();
+
+        let thread_changes:Sender<WatcherMessage> = tx.clone();
         let handler_changes = spawn(move || {
-            // self.exercise.has_changed()
+            println!("Helloooo");
+            let mut last_mod = 0u64;
+            loop {
+                let current_last_mod = exercise_arc_clone.lock().unwrap().get_last_mod();
+                if current_last_mod.ne(&last_mod) {
+                    println!("File has changed!");
+                    last_mod = current_last_mod;
+                    thread_changes.send(WatcherMessage::HasChanged);
+                }
+            }
+
         });
+        handler_changes.join();
     }
 }

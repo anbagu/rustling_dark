@@ -1,10 +1,11 @@
+use std::cell::RefCell;
 use std::fmt::Display;
 use std::fs;
 use std::fs::metadata;
 use std::io::{prelude::*};
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::SystemTime;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Deserialize;
 
@@ -20,20 +21,9 @@ pub struct Exercise {
     path: PathBuf,
     mode: Mode,
     hint: String,
-    last_mod: Option<SystemTime>,
 }
 
-impl Default for Exercise {
-    fn default() -> Exercise {
-        Exercise {
-            name: String::default(),
-            path: PathBuf::default(),
-            mode: Mode::Test,
-            hint: String::default(),
-            last_mod: None,
-        }
-    }
-}
+
 
 #[derive(Deserialize)]
 pub struct ExerciseList {
@@ -98,15 +88,16 @@ impl Exercise {
     //     println!("Helllllllllllllloooow")
     // }
 
-    pub fn has_changed(&mut self) -> bool {
-        let current_last_mod = self.get_last_mod();
-        let has_changed = current_last_mod == self.last_mod.unwrap();
-        println!("{:?} {:?}", current_last_mod, {self.last_mod.unwrap()});
-        self.last_mod = Some(current_last_mod);
-        has_changed
-    }
-    fn get_last_mod(&self) -> SystemTime {
+    // pub fn get_last_mtime(&mut self) -> bool {
+    //     let current_last_mod = self.get_last_mod();
+    //     let has_changed = current_last_mod != self.last_mod.get_mut().or_else(|| Some(SystemTime::now())).unwrap();
+    //     println!("{:?} {:?}", current_last_mod, { self.last_mod.get_mut() });
+    //     self.last_mod = Some(current_last_mod).into();
+    //     has_changed
+    // }
+    pub fn get_last_mod(&self) -> u64 {
         let metadata = metadata::<&PathBuf>(&self.path);
-        metadata.unwrap().modified().unwrap()
+        let last_mod_st =  metadata.unwrap().modified().unwrap();
+        last_mod_st.duration_since(UNIX_EPOCH).unwrap().as_secs()
     }
 }

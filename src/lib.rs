@@ -1,3 +1,3 @@
  pub mod exercise;
  mod utils;
- mod watcher;
+ pub mod watcher;

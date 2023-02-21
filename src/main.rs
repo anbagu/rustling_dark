@@ -1,6 +1,7 @@
 use argh::FromArgs;
 
 use rustling_dark::exercise::{self, Exercise, Status};
+use rustling_dark::watcher::Watcher;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Rustlings is a collection of small exercises to get you used to writing and reading Rust code
@@ -53,14 +54,17 @@ fn main() {
 
 fn watch(exercises: Vec<Exercise>) {
     println!("Watch mode was activated");
-    for ex in exercises {
-        // ex.has_changed();
-        let status = match ex.check_status() {
+    for mut ex in exercises {
+        let _ = match ex.check_status() {
             Ok(Status::Done) => {
                 println!("Exercise {} was done!", ex.name)
             },
             Ok(Status::Pending) => {
-                println!("Exercise {} is pending!", ex.name)
+                println!("Exercise {} is pending!", ex.name);
+                println!("Las time modification {:?}",ex.get_last_mod());
+                let mut watcher  = Watcher::new(ex);
+                watcher.watch()
+
             },
             Err(e) => {
                 println!("Parsing {} is threw the following Error:\n {}", ex.name, e)

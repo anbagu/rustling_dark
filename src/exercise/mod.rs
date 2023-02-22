@@ -4,7 +4,7 @@ use std::fs::metadata;
 use std::io::{prelude::*};
 use std::path::Path;
 use std::path::PathBuf;
-use std::process::{Command, Output};
+use std::process::{Command, ExitStatus, Output};
 use std::time::UNIX_EPOCH;
 
 use serde::Deserialize;
@@ -24,8 +24,8 @@ pub struct Exercise {
 }
 
 impl Exercise {
-    pub(crate) fn compile(&self) -> std::io::Result<Output> {
-        Command::new("rustc").args([&self.path]).output()
+    pub(crate) fn compile(&self) -> std::io::Result<ExitStatus> {
+        Command::new("rustc").args([&self.path]).status()
     }
 }
 

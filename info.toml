@@ -1,12 +1,11 @@
 [[exercises]]
-name = "pending_test_exercise"
-path = "pending_test_exercise.rs"
-mode = "test"
-hint = """"""
-
-[[exercises]]
-name = "pending_exercise"
-path = "exercises/pending_exercise.rs"
+name = "hello_world"
+path = "exercises/hello_world.rs"
 mode = "compile"
 hint = """"""
 
+[[exercises]]
+name = "exercise_with_tests"
+path = "exercises/exercise_with_tests.rs"
+mode = "compile"
+hint = """"""

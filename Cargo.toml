@@ -13,6 +13,10 @@ path = "src/main.rs"
 name = "rustling_dark"
 path = "src/lib.rs"
 
+[[test]]
+name = "mycrate-test"
+path = "exercises/analysis_hook.rs"
+
 [dependencies]
 argh = "0.1"
 toml = "0.7.2"

@@ -8,5 +8,5 @@
 /// After I am not DONE
 
 fn main() {
-    println!("Hello, World!")
+    println!("Hello, World!");
 }

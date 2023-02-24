@@ -1,2 +1,4 @@
 /target
 .idea
+tmp_compilations/*
+!tmp_compilations/.gitkeep

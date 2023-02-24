@@ -1,9 +1,10 @@
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::mpsc::channel;
-use std::thread::spawn;
+use std::thread::{sleep, spawn};
+use std::time::Duration;
 
-use crate::exercise::Exercise;
+use crate::exercise::{Exercise, Mode};
 
 pub struct Watcher {
     exercise: Exercise,
@@ -40,14 +41,22 @@ impl Watcher {
         loop {
             let message = rx.recv().unwrap();
             println!("File changed, proceeding to compilation");
-            let compilation_result = exercise_arc_mtx.lock().unwrap().compile();
+            let exercise_guard = exercise_arc_mtx.lock().unwrap();
+            let compilation_result = exercise_guard.compile();
             match compilation_result.unwrap().success()
             {
                 true => {
                     println!("Code is compiling");
-                    // break;
+                    if let Mode::Test = exercise_guard.mode {
+                        println!("Launching tests");
+                        exercise_guard.run_tests();
+                    }
+                    // sleep(Duration::from_secs(300u64))
                 }
-                false => println!("Error while compiling")
+                false => {
+                    println!("Error while compiling");
+                    // sleep(Duration::from_secs(300u64))
+                }
             }
         }
     }

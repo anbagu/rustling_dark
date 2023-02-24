@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, format};
 use std::fs;
 use std::fs::metadata;
 use std::io::{prelude::*};
@@ -19,14 +19,19 @@ mod errors;
 pub struct Exercise {
     pub name: String,
     path: PathBuf,
-    mode: Mode,
+    pub mode: Mode,
     hint: String,
 }
 
 impl Exercise {
     pub(crate) fn compile(&self) -> std::io::Result<ExitStatus> {
-        Command::new("rustc").args([&self.path]).status()
+        let file_path = self.path.to_str().unwrap();
+        let file_name = file_path.split("/").last().unwrap();
+        let output_path = &format!("tmp_compilations/{file_name}");
+        let status = Command::new("rustc").args(["-o", &output_path, file_path]).status();
+        status
     }
+    pub(crate) fn run_tests(&self) -> () {}
 }
 
 

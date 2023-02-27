@@ -7,5 +7,5 @@ hint = """"""
 [[exercises]]
 name = "exercise_with_tests"
 path = "exercises/exercise_with_tests.rs"
-mode = "compile"
+mode = "test"
 hint = """"""

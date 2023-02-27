@@ -31,7 +31,13 @@ impl Exercise {
         let status = Command::new("rustc").args(["-o", &output_path, file_path]).status();
         status
     }
-    pub(crate) fn run_tests(&self) -> () {}
+    pub(crate) fn run_tests(&self) -> std::io::Result<ExitStatus> {
+        let file_path = self.path.to_str().unwrap();
+        let file_name = file_path.split("/").last().unwrap();
+        let test_name = &file_name.replace(".rs","");
+        let status = Command::new("cargo").args(["test", test_name]).status();
+        status
+    }
 }
 
 
@@ -86,7 +92,7 @@ impl Exercise {
 
         let lines_iter = &mut reader.lines().into_iter();
         while let Some(line) = lines_iter.next() {
-            println!("Line was {:?}", line);
+            // println!("Line was {:?}", line);
             if line.unwrap().contains("// I AM NOT DONE") {
                 return Ok(Status::Pending);
             }

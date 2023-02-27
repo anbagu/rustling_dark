@@ -1,3 +1,6 @@
+
+// I AM NOT DONE
+
 #[derive(Debug)]
 struct Rectangle {
     width: u32,
@@ -11,7 +14,7 @@ impl Rectangle {
 }
 
 #[cfg(test)]
-mod tests {
+mod exercise_with_tests {
     use super::*;
 
     #[test]
@@ -21,9 +24,10 @@ mod tests {
             height: 7,
         };
         let smaller = Rectangle {
-            width: 5,
-            height: 1,
+            width: 9,
+            height: 9,
         };
+        println!("hollaaaaa");
 
         assert!(larger.can_hold(&smaller));
     }

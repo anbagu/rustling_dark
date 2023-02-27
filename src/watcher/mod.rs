@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::mpsc::channel;
 use std::thread::{sleep, spawn};
@@ -26,8 +26,8 @@ impl Watcher {
         let (tx, rx): (Sender<WatcherMessage>, Receiver<WatcherMessage>) = channel();
 
         let thread_changes: Sender<WatcherMessage> = tx.clone();
-        let handler_changes = spawn(move || {
-            println!("Helloooo");
+        let _handler_changes = spawn(move || {
+            println!("Watching exercise");
             let mut last_mod = 0u64;
             loop {
                 let current_last_mod = exercise_arc_clone.lock().unwrap().get_last_mod();
@@ -39,25 +39,33 @@ impl Watcher {
             }
         });
         loop {
-            let message = rx.recv().unwrap();
-            println!("File changed, proceeding to compilation");
+            let _message = rx.recv().unwrap();
+            println!("File changed, proceeding to evaluation");
             let exercise_guard = exercise_arc_mtx.lock().unwrap();
-            let compilation_result = exercise_guard.compile();
-            match compilation_result.unwrap().success()
-            {
-                true => {
-                    println!("Code is compiling");
-                    if let Mode::Test = exercise_guard.mode {
-                        println!("Launching tests");
-                        exercise_guard.run_tests();
-                    }
-                    // sleep(Duration::from_secs(300u64))
+            let result = match exercise_guard.mode {
+                Mode::Compile => {
+                    Self::compile(exercise_guard)
                 }
-                false => {
-                    println!("Error while compiling");
-                    // sleep(Duration::from_secs(300u64))
+                Mode::Test => {
+                    Self::run_tests(exercise_guard)
                 }
+                Mode::Clippy => { false }
+            };
+            if result {
+                println!("Succeeded");
+                break;
             }
         }
+    }
+
+    fn compile(exercise_guard: MutexGuard<Exercise>) -> bool {
+        println!("Compiling");
+        let compilation_result = exercise_guard.compile();
+        compilation_result.unwrap().success()
+    }
+    fn run_tests(exercise_guard: MutexGuard<Exercise>) -> bool {
+        println!("Testing");
+        let test_result = exercise_guard.run_tests();
+        test_result.unwrap().success()
     }
 }
